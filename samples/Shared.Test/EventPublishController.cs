@@ -1,7 +1,7 @@
 using EventBus;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RedisEventBus.Test.Controllers;
+namespace Shared.Test;
 
 [Route("api/[controller]")]
 [ApiController]

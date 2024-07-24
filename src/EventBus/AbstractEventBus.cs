@@ -19,6 +19,7 @@ public abstract class AbstractEventBus<TOptions>
 	private readonly TOptions _options;
 
 	protected TOptions Options => _options;
+	protected EventBusSubscriptionInfo SubscriptionInfo => _subscriptionInfo;
 	protected IEventBusSerializer Serializer => _serializer;
 
 	protected AbstractEventBus(IOptions<TOptions> options, IEventBusSerializer serializer, IOptions<EventBusSubscriptionInfo> subscriptionInfo, ILogger<AbstractEventBus<TOptions>> logger, IServiceProvider serviceProvider)

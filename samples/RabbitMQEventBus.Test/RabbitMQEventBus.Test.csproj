@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EventBus.Redis\EventBus.Redis.csproj" />
-    <ProjectReference Include="..\Shared.Test\Shared.Test.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\..\src\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
+    <ProjectReference Include="..\Shared.Test\Shared.Test.csproj" />
   </ItemGroup>
 
 </Project>

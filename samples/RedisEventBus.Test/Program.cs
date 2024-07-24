@@ -1,6 +1,6 @@
 using EventBus.Extensions;
 using EventBus.Redis;
-using RedisEventBus.Test;
+using Shared.Test;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

@@ -1,6 +1,6 @@
 using EventBus;
 
-namespace RedisEventBus.Test;
+namespace Shared.Test;
 
 public sealed class HelloEvent : EventBase
 {
