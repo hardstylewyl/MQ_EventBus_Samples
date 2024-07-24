@@ -32,6 +32,14 @@ public abstract class AbstractEventBus<TOptions>
 		_subscriptionInfo = subscriptionInfo.Value;
 	}
 
+
+	public abstract Task PublishCoreAsync(EventBase @event, CancellationToken cancellation = default);
+
+	public abstract Task<EMetadata?> ReceiveMessageAsync(CancellationToken cancellationToken = default);
+
+	public abstract Task InitializeAsync(CancellationToken cancellation = default);
+
+
 	public virtual async Task PublishAsync(EventBase @event, CancellationToken cancellation = default)
 	{
 		var policy = EventBusPolicyProvider.PublishAsyncRetryPolicy;
@@ -50,15 +58,6 @@ public abstract class AbstractEventBus<TOptions>
 		});
 
 	}
-
-
-	public abstract Task PublishCoreAsync(EventBase @event, CancellationToken cancellation = default);
-
-
-
-	public abstract Task<EMetadata?> ReceiveMessageAsync(CancellationToken cancellationToken = default);
-
-
 
 	public virtual async Task StartConsumeOneAsync(CancellationToken cancellationToken = default)
 	{
@@ -97,16 +96,18 @@ public abstract class AbstractEventBus<TOptions>
 
 	}
 
-
-
-	//进行初始化
-	public abstract Task InitializeAsync(CancellationToken cancellation = default);
-
-
 	public virtual async Task StartAsync(CancellationToken cancellationToken)
 	{
-		//初始化
-		await InitializeAsync(cancellationToken);
+		try
+		{
+			//初始化
+			await InitializeAsync(cancellationToken);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogCritical(ex, "Event Bus Initialize Fail ");
+			throw;
+		}
 
 		//支持消费则默认开启消费
 		if (_options.IsConsumer)
@@ -126,6 +127,5 @@ public abstract class AbstractEventBus<TOptions>
 	{
 		return Task.CompletedTask;
 	}
-
 
 }
