@@ -30,9 +30,9 @@ public sealed class RedisEventBus(
 			Timeout = 5000
 		};
 
+		//不支持消费
 		if (!Options.IsConsumer)
 		{
-			logger.LogWarning("当前不支持消费消息，如需支持消费请在配置项目配置IsConsumer:true");
 			return Task.CompletedTask;
 		}
 

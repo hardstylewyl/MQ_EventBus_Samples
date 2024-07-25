@@ -1,0 +1,88 @@
+version: "3"
+services:
+  kafka1:
+    image: 'bitnami/kafka:3.3.1'
+    container_name: kafka11
+    user: root
+    ports:
+      - '9192:9092'
+      - '9193:9093'
+    environment:
+      # 通用配置
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=LelM2dIFQkiUFvXCEcqRWA
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka11:9093,2@kafka22:9093,3@kafka33:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_HEAP_OPTS=-Xmx512M -Xms256M
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      # broker配置
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.106:9192
+      - KAFKA_BROKER_ID=1
+    volumes:
+      - ./home/mycontainers/kafka1/kafka/kraft:/bitnami/kafka
+
+  kafka2:
+    image: 'bitnami/kafka:3.3.1'
+    container_name: kafka22
+    user: root
+    ports:
+      - '9292:9092'
+      - '9293:9093'
+    environment:
+      # 通用配置（与kafka1相同）
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=LelM2dIFQkiUFvXCEcqRWA
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka11:9093,2@kafka22:9093,3@kafka33:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_HEAP_OPTS=-Xmx512M -Xms256M
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      # broker配置
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.106:9292
+      - KAFKA_BROKER_ID=2
+    volumes:
+      - ./home/mycontainers/kafka2/kafka/kraft:/bitnami/kafka
+
+  kafka3:
+    image: 'bitnami/kafka:3.3.1'
+    container_name: kafka33
+    user: root
+    ports:
+      - '9392:9092'
+      - '9393:9093'
+    environment:
+      # 通用配置（与kafka1相同）
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=LelM2dIFQkiUFvXCEcqRWA
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka11:9093,2@kafka22:9093,3@kafka33:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_HEAP_OPTS=-Xmx512M -Xms256M
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      # broker配置
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.106:9392
+      - KAFKA_BROKER_ID=3
+    volumes:
+      - ./home/mycontainers/kafka3/kafka/kraft:/bitnami/kafka
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    restart: always
+    ports:
+      - '8080:8080'
+    volumes:
+      - /etc/localtime:/etc/localtime
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka11:9092,kafka22:9092,kafka33:9092

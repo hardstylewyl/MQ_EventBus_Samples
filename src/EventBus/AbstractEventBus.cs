@@ -49,10 +49,11 @@ public abstract class AbstractEventBus<TOptions>
 			try
 			{
 				await PublishCoreAsync(@event, cancellation);
+				_logger.LogInformation("Sent Event [{Name}] Id [{Id}] Success!!", @event.GetType().Name, @event.Id);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError("Event Id:{Id} publish message error{exception}", @event.Id, ex);
+				_logger.LogError("Sent Event [{Name}] Id [{Id}] Error {error}", @event.GetType().Name, @event.Id, ex);
 				throw;
 			}
 		});
@@ -69,10 +70,11 @@ public abstract class AbstractEventBus<TOptions>
 		//寻找支持的反序列化类型根据key
 		if (!_subscriptionInfo.EventTypes.TryGetValue(data.Key, out var eventType))
 		{
-			_logger.LogWarning("Unable to resolve event type for event name {EventName}", data.Key);
+			_logger.LogWarning("Event [{Name}] type is not supported", data.Key);
 			return;
 		}
 
+		var eventId = Guid.Empty;
 		try
 		{
 			//寻找对应类型的处理器
@@ -81,17 +83,19 @@ public abstract class AbstractEventBus<TOptions>
 			{
 				//为每个处理器都构建个新的事件副本通过反序化的方式
 				var @event = _serializer.Deserialize(data.Value, eventType);
+				eventId = @event.Id;
 				await eventHandler.Handle(@event);
 			}
 
 			//提交消费成功
 			await data.AckFunc(cancellationToken);
+			//_logger.LogInformation("Processing Event [{Name}] Id [{Id}] Success！！", data.Key, eventId);
 		}
 		catch (Exception ex)
 		{
 			//提交消费失败
 			await data.FailFunc(cancellationToken);
-			_logger.LogWarning(ex, "Error Processing Event \"{Event}\"", data.Key);
+			_logger.LogError(ex, "Processing Event [{Name}] Id [{Id}] Error {error}", data.Key, eventId, ex);
 		}
 
 	}
@@ -102,16 +106,20 @@ public abstract class AbstractEventBus<TOptions>
 		{
 			//初始化
 			await InitializeAsync(cancellationToken);
+
+			_logger.LogInformation("Event bus initialization successful！！");
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
-			_logger.LogCritical(ex, "Event Bus Initialize Fail ");
+			_logger.LogCritical("Event bus initialization failed！！");
 			throw;
 		}
 
 		//支持消费则默认开启消费
 		if (_options.IsConsumer)
 		{
+			_logger.LogInformation("Start event consumption ！");
+
 			_ = Task.Factory.StartNew(async () =>
 			{
 				while (!cancellationToken.IsCancellationRequested)
@@ -120,6 +128,11 @@ public abstract class AbstractEventBus<TOptions>
 				}
 			}, TaskCreationOptions.LongRunning);
 
+		}
+		else
+		{
+			_logger.LogWarning("Currently, consumption messages are not supported." +
+				" To support consumption, please configure IsConsumer: true in the configuration item");
 		}
 	}
 
