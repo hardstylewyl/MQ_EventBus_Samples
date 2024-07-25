@@ -22,24 +22,24 @@ public static class EventBusPolicyProvider
 	//创建链接重试策略 同步
 	public static RetryPolicy CreateConnectionRetryPolicy = null!;
 
-	public static void Init(EventBusPolicyOptions retryPolicyOptions)
+	public static void Init(EventBusPolicyOptions options)
 	{
 		PublishAsyncRetryPolicy =
 			Policy.Handle<Exception>()
-				.WaitAndRetryAsync(DefaultPolicyOptions.PublishRetryCount,
+				.WaitAndRetryAsync(options.PublishRetryCount,
 					retryAttempt =>
 						TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
 		ConsumerAsyncRetryPolicy =
 			Policy.Handle<Exception>()
-				.WaitAndRetryAsync(DefaultPolicyOptions.ConsumerRetryCount,
+				.WaitAndRetryAsync(options.ConsumerRetryCount,
 					retryAttempt =>
 						TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
 		CreateConnectionRetryPolicy =
 			Policy.Handle<Exception>()
 				.Or<SocketException>()
-				.WaitAndRetry(DefaultPolicyOptions.CreateConnectionRetryCount,
+				.WaitAndRetry(options.CreateConnectionRetryCount,
 					retryAttempt =>
 						TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 	}
