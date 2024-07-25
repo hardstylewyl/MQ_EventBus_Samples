@@ -101,9 +101,6 @@ public sealed class KafkaEventBus(IOptions<KafkaEventBusOptions> options,
 		return Task.FromResult<EMetadata?>(eData);
 	}
 
-
-
-
 	public void Dispose()
 	{
 		_consumer?.Dispose();

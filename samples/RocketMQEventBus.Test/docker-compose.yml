@@ -1,0 +1,77 @@
+version: '3.5'
+services:
+ nameserver:
+  image: apacherocketmq/rocketmq:4.6.0
+  container_name: nameserver-stand
+  ports: 
+   - 9876:9876
+  environment:
+    TZ: Asia/Shanghai
+    JAVA_OPTS: "-Duser.home=/opt"
+    JAVA_OPT_EXT: "-server -Xms128m -Xmx256m"      
+  volumes:
+   - ./nameserver/logs:/home/rocketmq/logs
+   - ./nameserver/store:/home/rocketmq/store
+  command: sh mqnamesrv
+  networks:
+   rmq:
+    aliases:
+     - nameserver
+ broker-stand:
+  image: apacherocketmq/rocketmq:4.6.0
+  container_name: broker-stand
+  user:
+   root:root
+  ports:
+   - 10911:10911
+   - 10912:10912
+  depends_on:
+   - nameserver
+  volumes:
+   - ./broker/logs:/root/logs
+   - ./broker/store:/root/store
+   - ./broker/conf/broker.conf:/opt/rocketmq-4.6.0/conf/broker.conf
+  environment:
+   TZ: Asia/Shanghai
+   NAMESRV_ADDR: "nameserver:9876"
+   JAVA_OPTS: "-Duser.home=/opt"
+   JAVA_OPT_EXT: "-server -Xms128m -Xmx256m" 
+  command: sh mqbroker -c /opt/rocketmq-4.6.0/conf/broker.conf autoCreateTopicEnable=true &
+  links:
+   - nameserver:nameserver
+  networks:
+   rmq:
+    aliases:
+     - rmqbroker
+ 
+ rmqconsole:
+   image: apacherocketmq/rocketmq-dashboard
+   container_name: rmqconsole
+   ports:
+     - 8087:8080
+   environment:
+     JAVA_OPTS: -Drocketmq.namesrv.addr=nameserver:9876; -Dcom.rocketmq.sendMessageWithVIPChannel=false -Drocketmq.config.accessKey=rocketmq2 -Drocketmq.config.secretKey=12345678
+   volumes:
+     - /rocketmq/console-ng/data:/tmp/rocketmq-console/data
+   networks:
+     rmq:
+       aliases:
+         - rmqconsole
+networks:
+ rmq:
+  name: rmq
+  driver: bridge
+   # rmqconsole-stand:
+  # image: styletang/rocketmq-console-ng
+  # container_name: rmqconsole-stand
+  # ports:
+   # - 9001:9001
+  # environment:
+    # TZ: Asia/Shanghai
+    #JAVA_OPTS: "-Duser.home=/opt"
+    # JAVA_OPT_EXT: "-server -Xms128m -Xmx256m"      
+    # JAVA_OPTS: "-Drocketmq.namesrv.addr=172.16.15.220:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false -Dserver.port=9001" 
+  # networks:
+   # rmq:
+    # aliases:
+     # - rmqconsole
