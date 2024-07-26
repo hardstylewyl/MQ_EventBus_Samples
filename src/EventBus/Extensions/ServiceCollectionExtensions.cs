@@ -15,14 +15,15 @@ public static class ServiceCollectionExtensions
 		return AddEventBusCore<TEventBus, TOptions>(services);
 	}
 
-	public static IEventBusBuilder AddEventBusCore<TEventBus, TOptions>(this IServiceCollection services, IConfigurationManager configuration)
+	public static IEventBusBuilder AddEventBusCore<TEventBus, TOptions>(this IServiceCollection services, IConfiguration configuration)
 		where TOptions : EventBusOptionsBase, new()
 		where TEventBus : AbstractEventBus<TOptions>
 	{
-		return AddEventBusCore<TEventBus, TOptions>(services, configuration, nameof(TOptions));
+		services.Configure<TOptions>(configuration);
+		return AddEventBusCore<TEventBus, TOptions>(services);
 	}
 
-	public static IEventBusBuilder AddEventBusCore<TEventBus, TOptions>(this IServiceCollection services, IConfigurationManager configuration, string name)
+	public static IEventBusBuilder AddEventBusCore<TEventBus, TOptions>(this IServiceCollection services, IConfiguration configuration, string name)
 		where TOptions : EventBusOptionsBase, new()
 		where TEventBus : AbstractEventBus<TOptions>
 	{
