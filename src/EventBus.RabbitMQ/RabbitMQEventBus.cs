@@ -41,7 +41,7 @@ public sealed class RabbitMQEventBus(IOptions<RabbitMQEventBusOptions> options,
 		_consumerChannel = _amqpClient.CreateModel();
 
 		//配置管道交换机
-		_consumerChannel.ExchangeDeclare(exchange: Options.ExchangeName, type: "direct");
+		_consumerChannel.ExchangeDeclare(exchange: Options.ExchangeName, type: ExchangeType.Direct);
 		//配置管道消费队列
 		_consumerChannel.QueueDeclare(
 			queue: Options.QueueName,
@@ -100,7 +100,7 @@ public sealed class RabbitMQEventBus(IOptions<RabbitMQEventBusOptions> options,
 		var channel = _amqpClient!.CreateModel();
 
 		//交换机定义
-		channel.ExchangeDeclare(exchange: Options.ExchangeName, type: "direct");
+		channel.ExchangeDeclare(exchange: Options.ExchangeName, type: ExchangeType.Direct);
 
 		//配置信道属性
 		var properties = channel.CreateBasicProperties();
